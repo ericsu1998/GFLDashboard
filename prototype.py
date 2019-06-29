@@ -29,12 +29,16 @@ def updateGirlsDatabase(girls):
 
 # Girls Functions
 def printGirlsPrettily(girls):
-	print("Here's the list of your girls: ")
-	for girl in girls:
-		print("Name: " + girl)
-		print("Current Level: " + str(girls[girl]["Levels"][-1]))
-		print("Last updated: " + str(girls[girl]["updateTimes"][-1]))
+	if (len(girls) == 0): 
+		print("You currently have no girls :(")
 		newLine()
+	else:
+		print("Here's the list of your girls: ")
+		for girl in girls:
+			print("Name: " + girl)
+			print("Current Level: " + str(girls[girl]["Levels"][-1]))
+			print("Last updated: " + str(girls[girl]["updateTimes"][-1]))
+			newLine()
 
 def yeetGirls(girls):
 	# Clears the dictionary of girls
@@ -60,11 +64,15 @@ def addGirlToHaremWithConsent(girls):
 	if (confirmedWithMessage("Add more girls? ")): addGirlToHaremWithConsent(girls)
 
 def selectionLoop(girls):
+	printGirlsPrettily(girls)
 	print("What would you like to do?")
-	selection = userResponse("Options (type to select): [yeet, add]: ")
+	selection = userResponse("Options (type to select): [yeet, add, exit]: ")
 	newLine()
 
-	if (selection == "yeet"): 
+	if (selection == "exit"):
+		print("Have a nice day!")
+		return
+	elif (selection == "yeet"): 
 		yeetGirls(girls)
 		newLine()
 	elif (selection == "add"): addGirlToHaremWithConsent(girls)
@@ -76,7 +84,6 @@ def main():
 	print("Welcome to GFL Level Tracker!")
 	newLine()
 	girls = readGirlsIn()
-	printGirlsPrettily(girls)
 	selectionLoop(girls)
 	updateGirlsDatabase(girls)
 
