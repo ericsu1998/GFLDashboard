@@ -52,13 +52,13 @@ def addGirlToHaremWithConsent(girls):
 	if (girl not in girls): 
 		level = int(userResponse("Enter level:"))
 		girls[girl] = {"Levels" : [level], "updateTimes" : [datetime.datetime.now()]}
+		updateGirlsDatabase(girls)
 		print("Added!")
 	else:
 		print("Your girl is already in the database")
-	if (confirmedWithMessage("Add more girls?")): addGirlToHaremWithConsent(girls)
+	newLine()
 
 def updateGirl(girls):
-	printGirlsPrettily(girls)
 	girlToUpdate = userResponse("Who would you like to update? (Press q to go back to selection menu):")
 	if (girlToUpdate == "q"): return
 	elif (girlToUpdate not in girls): 
@@ -68,11 +68,21 @@ def updateGirl(girls):
 		level = int(userResponse("Enter level:"))
 		girls[girlToUpdate]["Levels"] += [level]
 		girls[girlToUpdate]["updateTimes"] += [datetime.datetime.now()]
+		updateGirlsDatabase(girls)
+		return
+
+def deleteGirl(girls):
+	girlToDelete = userResponse("Who would you like to delete? (Press q to go back to selection menu):")
+	if (girlToDelete == "q"): return
+	elif (girlToDelete not in girls):
+		print("Your girl is not there...")
+	else:
+		del girls[girlToDelete]
+	newLine()
 
 def helpScreen():
-	print("Options: yeet/add/update/list/exit/help")
-	print("------------------------------------------")
-	print("yeet: Clears all of your girls. Use with caution")
+	print("delete: Removes a girl")
+	print("clear: Clears all of your girls. Use with caution")
 	print("add: Adds a new girl to your list")
 	print("update: Updates an existing girl")
 	print("list: Prints out all of the girls that you have")
@@ -82,11 +92,13 @@ def helpScreen():
 
 def selectionLoop(girls):
 	print("What would you like to do?")
-	selection = userResponse("Options [clear, add, update, list, exit, help]:")
+	selection = userResponse("Options [delete, clear, add, update, list, exit, help]:")
 	newLine()
 
 	if (selection == "exit"):
 		return
+	elif (selection == "delete"):
+		deleteGirl(girls)
 	elif (selection == "update"):
 		updateGirl(girls)
 	elif (selection == "clear"): 
@@ -95,7 +107,10 @@ def selectionLoop(girls):
 	elif (selection == "list"): printGirlsPrettily(girls)
 	elif (selection == "add"): addGirlToHaremWithConsent(girls)
 	elif (selection == "help"): helpScreen()
-	else: print("Do you think I got time to support your girls??")
+	else: 
+		print("Do you think I got time to support your girls??")
+		newLine()
+
 	selectionLoop(girls)
 
 def main():
