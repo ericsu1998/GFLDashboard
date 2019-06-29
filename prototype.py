@@ -17,6 +17,106 @@ expToNextLevel = { 1: 100, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600, 7: 700, 8: 80
 				   70: 45100, 71: 46800, 72: 48600, 73: 50400, 74: 52200, 75: 54000, 76: 55900, 77: 57900, 78: 59800, 79: 61800,
 				   80: 63900, 81: 66600, 82: 68100, 83: 70300, 84: 72600, 85: 74800, 86: 77100, 87: 79500, 88: 81900, 89: 84300,
 				   90: 112600, 91: 116100, 92: 119500, 93: 123100, 94: 126700, 95: 130400, 96: 134100, 97: 137900, 98: 1419900, 99: 145700, 100: 0}
+gunTypes = {"HG", "SMG", "RF", "AR", "MG", "SG"}
+
+class Girls:
+	def __init__(self, girls):
+		self.girls = girls
+	
+	@staticmethod
+	def newGirls():
+		return __init__({})
+
+	def getGunType(self, girl):
+		return self.girls[girl].getGunType()
+	
+	def getCurrentLevel(self, girl):
+		return self.girls[girl].getCurrentLevel()
+	
+	def getCurrentExp(self, girl):
+		return self.girls[girl].getCurrentExp()
+
+	def getCurrentTime(self, girl): 
+		return self.girls[girl].getCurrentTime()
+	
+	def getExpToNextLevel(self, girl):
+		return self.girls[girl].getExpToNextLevel()
+
+	def addGirlToHaremWithConsent(self):
+		girl = userResponse("Enter girl's name:")
+		if (girl not in self.girls): 
+			gunType = getGunTypeFromInput()
+			level = getLevelFromInput()
+			exp = getExpFromInput()
+			self.girls[girl] = Girl(gunType, level, exp)
+			print("Added!")
+		else:
+			print("Your girl is already in the database")
+		newLine()
+
+	def deleteGirl(self, girl):
+		if (girl not in self.girls):
+			print("Your girl is not there...")
+		else:
+			del self.girls[girl]
+
+	def updateGirl(self, girlToUpdate):
+		if (girlToUpdate not in self.girls): 
+			print("Girl not found: try again")
+			self.updateGirl(self, girls)
+		else:
+			level = int(userResponse("Enter level:"))
+			exp = int(userResponse("Enter exp:"))
+			self.girls[girlToUpdate].updateGirl(level, exp)
+			return
+
+	def listGirls(self):
+		if (len(self.girls) == 0): 
+			print("You currently have no girls :(")
+			newLine()
+		else:
+			print("Here's the list of your girls: ")
+			try:
+				for girl in self.girls:
+					print("Name: " + girl)
+					gunType = self.getGunType(girl)
+					currentLevel = self.getCurrentLevel(girl)
+					currentExp = self.getCurrentExp(girl)
+					currentTime = self.getCurrentTime(girl)
+					print("Gun Type: " + gunType)
+					print("Current Level: " + str(currentLevel))
+					print("Exp To Next Level: " + str(self.getExpToNextLevel(girl)))
+					print("Last updated: " + str(currentTime))
+					newLine()
+			except AttributeError:
+				forceUpdate(self.girls)
+
+class Girl:
+	def __init__(self, gunType, level, exp):
+		self.gunType = gunType
+		self.levels = [level]
+		self.exps = [exp]
+		self.times = [datetime.datetime.now()]
+
+	def getGunType(self): return self.gunType
+
+	def getCurrentLevel(self):
+		return self.levels[-1]
+
+	def getCurrentExp(self):
+		return self.exps[-1]
+
+	def getCurrentTime(self):
+		return self.times[-1]
+
+	def getExpToNextLevel(self):
+		return expToNextLevel[self.getCurrentLevel()] - self.getCurrentExp()
+
+	def updateGirl(self, level, exp):
+		# Shares name with another method. Change name maybe?
+		self.levels += [level]
+		self.exps += [exp]
+		self.times += [datetime.datetime.now()]
 
 # Utility functions
 def getSaveFilePath(fileName):
@@ -28,11 +128,21 @@ def confirmedWithMessage(message):
 def userResponse(message):
 	# Honestly input is such a weird function name: 
 	# It makes sense, but also doesn't make sense
-	return input(message + " ");
+	return input(message + " ")
 
 def newLine():
 	# Lmao
 	print()
+
+def getGunTypeFromInput():
+	gunType = None
+	try:
+		gunType = userResponse("Enter gun type (HG, SMG, RF, AR, MG, SG):")
+		if (gunType not in gunTypes): raise ValueError
+	except ValueError:
+		print("You entered an invalid gun type, please try again.")
+		getGunTypeFromInput()
+	return gunType
 
 def getLevelFromInput():
 	level = None
@@ -56,13 +166,22 @@ def getExpFromInput():
 	return exp
 
 # Database Functions
+def forceUpdate(girls):
+	# Really bad and hacky function, find a better way to update
+	print("Updating girls...")
+	updatedGirls = {}
+	for girl in girls:
+		print(girl)
+		gunType = getGunTypeFromInput()
+		girls[girl] = Girl(gunType, girls[girl]["Levels"][-1], girls[girl]['Exp'][-1])
+
 def updateGirlsDatabase(f, girls):
 	pickle.dump(girls, open(f, "wb"), pickle.HIGHEST_PROTOCOL)
 	
 def initFile(fileName):
 	filePath = getSaveFilePath(fileName)
 	open(filePath, "w+")
-	updateGirlsDatabase(filePath, noGirls)
+	updateGirlsDatabase(filePath, Girls())
 
 def openGirlsForWrite():
 	return open(girlsFileLine, "wb")
@@ -70,61 +189,25 @@ def openGirlsForWrite():
 def readGirlsIn(f):
 	return pickle.load(open(f, "rb"))
 
-def printGirlsPrettily(girls):
-	if (len(girls) == 0): 
-		print("You currently have no girls :(")
-		newLine()
-	else:
-		print("Here's the list of your girls: ")
-		for girl in girls:
-			print("Name: " + girl)
-			currentLevel = girls[girl]["Levels"][-1]
-			currentExp = girls[girl]["Exp"][-1]
-			print("Current Level: " + str(currentLevel))
-			print("Exp To Next Level: " + str(expToNextLevel[currentLevel] - currentExp))
-			print("Last updated: " + str(girls[girl]["updateTimes"][-1]))
-			newLine()
-
 def yeetGirls(girls):
 	# Clears the dictionary of girls
 	if (confirmedWithMessage(yeetMessage)):
 		girls.clear()
 		print("No more girls in your life sad ")
 
-def addGirlToHaremWithConsent(girls):
-	girl = userResponse("Enter girl's name:")
-
-	if (girl not in girls): 
-		level = getLevelFromInput()
-		exp = getExpFromInput()
-		girls[girl] = {"Levels" : [level], "Exp" : [exp], "updateTimes" : [datetime.datetime.now()]}
-		print("Added!")
+def deleteGirl(girls):
+	girlToDelete = userResponse("Who would you like to delete? (Press q to go back to selection menu):")
+	if (girlToDelete == "q"): return
 	else:
-		print("Your girl is already in the database")
+		girls.deleteGirl(girlToDelete)
+
 	newLine()
 
 def updateGirl(girls):
 	girlToUpdate = userResponse("Who would you like to update? (Press q to go back to selection menu):")
 	if (girlToUpdate == "q"): return
-	elif (girlToUpdate not in girls): 
-		print("Girl not found: try again")
-		updateGirl(girls)
 	else:
-		level = int(userResponse("Enter level:"))
-		exp = int(userResponse("Enter exp:"))
-		girls[girlToUpdate]["Levels"] += [level]
-		girls[girlToUpdate]["updateTimes"] += [datetime.datetime.now()]
-		girls[girlToUpdate]["Exp"] += [exp]
-		return
-
-def deleteGirl(girls):
-	girlToDelete = userResponse("Who would you like to delete? (Press q to go back to selection menu):")
-	if (girlToDelete == "q"): return
-	elif (girlToDelete not in girls):
-		print("Your girl is not there...")
-	else:
-		del girls[girlToDelete]
-	newLine()
+		girls.updateGirl(girlToUpdate)
 
 def helpScreen():
 	print("delete: Removes a girl")
@@ -150,8 +233,8 @@ def selectionLoop(girls):
 	elif (selection == "clear"): 
 		yeetGirls(girls)
 		newLine()
-	elif (selection == "list"): printGirlsPrettily(girls)
-	elif (selection == "add"): addGirlToHaremWithConsent(girls)
+	elif (selection == "list"): girls.listGirls()
+	elif (selection == "add"): girls.addGirlToHaremWithConsent()
 	elif (selection == "help"): helpScreen()
 	else: 
 		print("Do you think I got time to support your girls??")
@@ -163,6 +246,7 @@ def main():
 	filePath = None
 	fileName = None
 
+	# Automatically generate save files
 	if (not os.path.exists(girlsSaveFilesDirectory)): os.makedirs("girlsFiles")
 	if (len(os.listdir(girlsSaveFilesDirectory)) == 0):
 		print("It seems like you don't have any save files yet. ")
@@ -176,8 +260,8 @@ def main():
 	print("Welcome to GFL Level Tracker!")
 	newLine()
 	filePath = getSaveFilePath(fileName)
-	girls = readGirlsIn(filePath)
-	printGirlsPrettily(girls)
+	girls = readGirlsIn(filePath) #Girls class
+	girls.listGirls()
 	selectionLoop(girls)
 	updateGirlsDatabase(filePath, girls)
 	print("Have a nice day!")
