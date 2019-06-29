@@ -6,12 +6,12 @@ yeetMessage = "Would you like to yeet your girls?"
 
 # Utility functions
 def confirmedWithMessage(message):
-	return userResponse(message + " (y/n): ") == "y"
+	return userResponse(message + " (y/n):") == "y"
 
 def userResponse(message):
 	# Honestly input is such a weird function name: 
 	# It makes sense, but also doesn't make sense
-	return input(message);
+	return input(message + " ");
 
 def newLine():
 	# Lmao
@@ -47,45 +47,65 @@ def yeetGirls(girls):
 		print("No more girls in your life sad ")
 
 def addGirlToHaremWithConsent(girls):
-	girl = userResponse("Enter your girl: ")
-	level = int(userResponse("Enter your level: "))
+	girl = userResponse("Enter girl's name:")
 
-	if (confirmedWithMessage("Add?")): 
-		if (girl not in girls): 
-			girls[girl] = {"Levels" : [level], "updateTimes" : [datetime.datetime.now()]}
-		else:
-			girls[girl]["Levels"] += [level]
-			girls[girl]["updateTimes"] += [datetime.datetime.now()]
-	
+	if (girl not in girls): 
+		level = int(userResponse("Enter level:"))
+		girls[girl] = {"Levels" : [level], "updateTimes" : [datetime.datetime.now()]}
 		print("Added!")
-		newLine()
-		printGirlsPrettily(girls)
+	else:
+		print("Your girl is already in the database")
+	if (confirmedWithMessage("Add more girls?")): addGirlToHaremWithConsent(girls)
 
-	if (confirmedWithMessage("Add more girls? ")): addGirlToHaremWithConsent(girls)
+def updateGirl(girls):
+	printGirlsPrettily(girls)
+	girlToUpdate = userResponse("Who would you like to update? (Press q to go back to selection menu):")
+	if (girlToUpdate == "q"): return
+	elif (girlToUpdate not in girls): 
+		print("Girl not found: try again")
+		updateGirl(girls)
+	else:
+		level = int(userResponse("Enter level:"))
+		girls[girlToUpdate]["Levels"] += [level]
+		girls[girlToUpdate]["updateTimes"] += [datetime.datetime.now()]
+
+def helpScreen():
+	print("Options: yeet/add/update/list/exit/help")
+	print("------------------------------------------")
+	print("yeet: Clears all of your girls. Use with caution")
+	print("add: Adds a new girl to your list")
+	print("update: Updates an existing girl")
+	print("list: Prints out all of the girls that you have")
+	print("exit: Quits the application")
+	print("help: Shows this screen")
+	newLine()
 
 def selectionLoop(girls):
-	printGirlsPrettily(girls)
 	print("What would you like to do?")
-	selection = userResponse("Options (type to select): [yeet, add, exit]: ")
+	selection = userResponse("Options [clear, add, update, list, exit, help]:")
 	newLine()
 
 	if (selection == "exit"):
-		print("Have a nice day!")
 		return
-	elif (selection == "yeet"): 
+	elif (selection == "update"):
+		updateGirl(girls)
+	elif (selection == "clear"): 
 		yeetGirls(girls)
 		newLine()
+	elif (selection == "list"): printGirlsPrettily(girls)
 	elif (selection == "add"): addGirlToHaremWithConsent(girls)
+	elif (selection == "help"): helpScreen()
 	else: print("Do you think I got time to support your girls??")
-
-	if (confirmedWithMessage("Do you want to do anything else?")): selectionLoop(girls)
+	selectionLoop(girls)
 
 def main():
 	print("Welcome to GFL Level Tracker!")
 	newLine()
 	girls = readGirlsIn()
+	printGirlsPrettily(girls)
 	selectionLoop(girls)
 	updateGirlsDatabase(girls)
+	print("Have a nice day!")
 
 if __name__ == "__main__":
 	main()
