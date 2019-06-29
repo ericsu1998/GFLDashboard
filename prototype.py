@@ -4,6 +4,17 @@ import datetime
 girlsFileLine = "girls.pickle"
 yeetMessage = "Would you like to yeet your girls?"
 
+expToNextLevel = { 1: 100, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600, 7: 700, 8: 800, 9: 900, 10: 1000,
+				   11: 1100, 12: 1200, 13: 1300, 14: 1400, 15: 1500, 16: 1600, 17: 1700, 18: 1800, 19: 1900, 20: 2000,
+				   21: 2100, 22: 2200, 23: 2300, 24: 2400, 25: 2500, 26: 2600, 27: 2800, 28: 3100, 29: 3400, 30: 4200,
+				   31: 4600, 32: 5000, 33: 5400, 34: 5800, 35: 6300, 36: 6700, 37: 7200, 38: 7700, 39: 8200, 40: 8800,
+				   41: 9300, 42: 9900, 43: 10500, 44: 11100, 45: 11800, 46: 12500, 47: 13100, 48: 13900, 49: 14600, 
+				   50: 15400, 51: 16100, 52: 16900, 53: 17700, 54: 18600, 55: 19500, 56: 20400, 57: 21300, 58: 22300, 59: 23300,
+				   60: 24300, 61: 25300, 62: 26300, 63: 27400, 64: 28500, 65: 29600, 66: 30800, 67: 32000, 68: 33200, 69: 34400,
+				   70: 45100, 71: 46800, 72: 48600, 73: 50400, 74: 52200, 75: 54000, 76: 55900, 77: 57900, 78: 59800, 79: 61800,
+				   80: 63900, 81: 66600, 82: 68100, 83: 70300, 84: 72600, 85: 74800, 86: 77100, 87: 79500, 88: 81900, 89: 84300,
+				   90: 112600, 91: 116100, 92: 119500, 93: 123100, 94: 126700, 95: 130400, 96: 134100, 97: 137900, 98: 1419900, 99: 145700, 100: 0}
+
 # Utility functions
 def confirmedWithMessage(message):
 	return userResponse(message + " (y/n):") == "y"
@@ -27,7 +38,7 @@ def readGirlsIn():
 def updateGirlsDatabase(girls):
 	pickle.dump(girls, open(girlsFileLine, "wb"), pickle.HIGHEST_PROTOCOL)
 
-# Girls Functions
+
 def printGirlsPrettily(girls):
 	if (len(girls) == 0): 
 		print("You currently have no girls :(")
@@ -36,7 +47,10 @@ def printGirlsPrettily(girls):
 		print("Here's the list of your girls: ")
 		for girl in girls:
 			print("Name: " + girl)
-			print("Current Level: " + str(girls[girl]["Levels"][-1]))
+			currentLevel = girls[girl]["Levels"][-1]
+			currentExp = girls[girl]["Exp"][-1]
+			print("Current Level: " + str(currentLevel))
+			print("Exp To Next Level: " + str(expToNextLevel[currentLevel] - currentExp))
 			print("Last updated: " + str(girls[girl]["updateTimes"][-1]))
 			newLine()
 
@@ -51,7 +65,8 @@ def addGirlToHaremWithConsent(girls):
 
 	if (girl not in girls): 
 		level = int(userResponse("Enter level:"))
-		girls[girl] = {"Levels" : [level], "updateTimes" : [datetime.datetime.now()]}
+		exp = int(userResponse("Enter exp:"))
+		girls[girl] = {"Levels" : [level], "Exp" : [exp], "updateTimes" : [datetime.datetime.now()]}
 		updateGirlsDatabase(girls)
 		print("Added!")
 	else:
@@ -66,8 +81,10 @@ def updateGirl(girls):
 		updateGirl(girls)
 	else:
 		level = int(userResponse("Enter level:"))
+		exp = int(userResponse("Enter exp:"))
 		girls[girlToUpdate]["Levels"] += [level]
 		girls[girlToUpdate]["updateTimes"] += [datetime.datetime.now()]
+		girls[girlToUpdate]["Exp"] += [exp]
 		updateGirlsDatabase(girls)
 		return
 
