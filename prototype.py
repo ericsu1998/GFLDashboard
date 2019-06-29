@@ -1,8 +1,11 @@
+import os
 import pickle
 import datetime
 
+girlsSaveFilesDirectory = "girlsFiles"
 girlsFileLine = "girls.pickle"
 yeetMessage = "Would you like to yeet your girls?"
+noGirls = {}
 
 expToNextLevel = { 1: 100, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600, 7: 700, 8: 800, 9: 900, 10: 1000,
 				   11: 1100, 12: 1200, 13: 1300, 14: 1400, 15: 1500, 16: 1600, 17: 1700, 18: 1800, 19: 1900, 20: 2000,
@@ -16,6 +19,9 @@ expToNextLevel = { 1: 100, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600, 7: 700, 8: 80
 				   90: 112600, 91: 116100, 92: 119500, 93: 123100, 94: 126700, 95: 130400, 96: 134100, 97: 137900, 98: 1419900, 99: 145700, 100: 0}
 
 # Utility functions
+def getSaveFilePath(fileName):
+	return girlsSaveFilesDirectory + "/" + fileName
+
 def confirmedWithMessage(message):
 	return userResponse(message + " (y/n):") == "y"
 
@@ -28,16 +34,41 @@ def newLine():
 	# Lmao
 	print()
 
+def getLevelFromInput():
+	level = None
+	try:
+		level = int(userResponse("Enter level (1-100):"))
+		if (level < 1 or level > 100): raise ValueError
+	except ValueError:
+		print("Level must be between 1 and 100!")
+		getLevelFromInput()
+	return level
+
+def getExpFromInput():
+	maxExp = 145699
+	exp = None
+	try:
+		exp = int(userResponse("Enter exp (0-" + str(maxExp) + "):"))
+		if (exp < 0 or exp > maxExp): raise ValueError
+	except ValueError:
+		print("Exp must be betwewen 0 and " + str(maxExp))
+		getExpFromInput()
+	return exp
+
 # Database Functions
+def updateGirlsDatabase(f, girls):
+	pickle.dump(girls, open(f, "wb"), pickle.HIGHEST_PROTOCOL)
+	
+def initFile(fileName):
+	filePath = getSaveFilePath(fileName)
+	open(filePath, "w+")
+	updateGirlsDatabase(filePath, noGirls)
+
 def openGirlsForWrite():
 	return open(girlsFileLine, "wb")
 
-def readGirlsIn():
-	return pickle.load(open(girlsFileLine, "rb"))
-
-def updateGirlsDatabase(girls):
-	pickle.dump(girls, open(girlsFileLine, "wb"), pickle.HIGHEST_PROTOCOL)
-
+def readGirlsIn(f):
+	return pickle.load(open(f, "rb"))
 
 def printGirlsPrettily(girls):
 	if (len(girls) == 0): 
@@ -64,10 +95,9 @@ def addGirlToHaremWithConsent(girls):
 	girl = userResponse("Enter girl's name:")
 
 	if (girl not in girls): 
-		level = int(userResponse("Enter level:"))
-		exp = int(userResponse("Enter exp:"))
+		level = getLevelFromInput()
+		exp = getExpFromInput()
 		girls[girl] = {"Levels" : [level], "Exp" : [exp], "updateTimes" : [datetime.datetime.now()]}
-		updateGirlsDatabase(girls)
 		print("Added!")
 	else:
 		print("Your girl is already in the database")
@@ -85,7 +115,6 @@ def updateGirl(girls):
 		girls[girlToUpdate]["Levels"] += [level]
 		girls[girlToUpdate]["updateTimes"] += [datetime.datetime.now()]
 		girls[girlToUpdate]["Exp"] += [exp]
-		updateGirlsDatabase(girls)
 		return
 
 def deleteGirl(girls):
@@ -131,12 +160,26 @@ def selectionLoop(girls):
 	selectionLoop(girls)
 
 def main():
+	filePath = None
+	fileName = None
+
+	if (not os.path.exists(girlsSaveFilesDirectory)): os.makedirs("girlsFiles")
+	if (len(os.listdir(girlsSaveFilesDirectory)) == 0):
+		print("It seems like you don't have any save files yet. ")
+		fileName = userResponse("Choose a file name:")
+		initFile(fileName)
+	elif (len(os.listdir(girlsSaveFilesDirectory)) == 1):
+		fileName = os.listdir(girlsSaveFilesDirectory)[0]
+	else:
+		print("Unimplented: Multiple save files")
+
 	print("Welcome to GFL Level Tracker!")
 	newLine()
-	girls = readGirlsIn()
+	filePath = getSaveFilePath(fileName)
+	girls = readGirlsIn(filePath)
 	printGirlsPrettily(girls)
 	selectionLoop(girls)
-	updateGirlsDatabase(girls)
+	updateGirlsDatabase(filePath, girls)
 	print("Have a nice day!")
 
 if __name__ == "__main__":
