@@ -2,8 +2,8 @@ import os
 import pickle
 import datetime
 
+# Constants
 girlsSaveFilesDirectory = "girlsFiles"
-girlsFileLine = "girls.pickle"
 yeetMessage = "Would you like to yeet your girls?"
 noGirls = {}
 
@@ -19,6 +19,46 @@ expToNextLevel = { 1: 100, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600, 7: 700, 8: 80
 				   90: 112600, 91: 116100, 92: 119500, 93: 123100, 94: 126700, 95: 130400, 96: 134100, 97: 137900, 98: 1419900, 99: 145700, 100: 0}
 gunTypes = {"HG", "SMG", "RF", "AR", "MG", "SG"}
 
+# Todo: add additional rewards (T-doll contracts, etc.)
+# Maybe move this to json?
+logisticsMissions = {"0-1" : {"manpower" : 0, "ammo" : 145, "rations" : 145, "parts" : 0, "Time" : 5/6},
+			 "0-2" : {"manpower" : 550, "ammo" : 0, "rations" : 0, "parts" : 350, "Time" : 3},
+			 "0-3" : {"manpower" : 900, "ammo" : 900, "rations" : 900, "parts" : 250, "Time" : 12},
+			 "0-4" : {"manpower" : 0, "ammo" : 1200, "rations" : 800, "parts" : 750, "Time" : 24},
+			 "1-1" : {"manpower" : 10, "ammo" : 30, "rations" : 15, "parts" : 0, "Time" : 0.25},
+			 "1-2" : {"manpower" : 0, "ammo" : 40, "rations" : 60, "parts" : 0, "Time" : 0.5},
+			 "1-3" : {"manpower" : 30, "ammo" : 0, "rations" : 30, "parts" : 10, "Time" : 1},
+			 "1-4" : {"manpower" : 160, "ammo" : 160, "rations" : 0, "parts" : 0, "Time" : 2},
+			 "2-1" : {"manpower" : 100, "ammo" : 0, "rations" : 0, "parts" : 30, "Time" : 2/3},
+			 "2-2" : {"manpower" : 60, "ammo" : 200, "rations" : 80, "parts" : 0, "Time" : 1.5},
+			 "2-3" : {"manpower" : 10, "ammo" : 10, "rations" : 10, "parts" : 230, "Time" : 4},
+			 "2-4" : {"manpower" : 0, "ammo" : 250, "rations" : 600, "parts" : 60, "Time" : 6},
+			 "3-1" : {"manpower" : 50, "ammo" : 0, "rations" : 75, "parts" : 0, "Time" : 1/3},
+			 "3-2" : {"manpower" : 0, "ammo" : 120, "rations" : 70, "parts" : 30, "Time" : 0.75},
+			 "3-3" : {"manpower" : 0, "ammo" : 300, "rations" : 0, "parts" : 0, "Time" : 1.5},
+			 "3-4" : {"manpower" : 0, "ammo" : 0, "rations" : 300, "parts" : 300, "Time" : 5},
+			 "4-1" : {"manpower" : 0, "ammo" : 185, "rations" : 185, "parts" : 0, "Time" : 1},
+			 "4-2" : {"manpower" : 0, "ammo" : 0, "rations" : 0, "parts" : 210, "Time" : 2},
+			 "4-3" : {"manpower" : 850, "ammo" : 550, "rations" : 0, "parts" : 0, "Time" : 6},
+			 "4-4" : {"manpower" : 400, "ammo" : 400, "rations" : 400, "parts" : 150, "Time" : 8},
+			 "5-1" : {"manpower" : 0, "ammo" : 0, "rations" : 100, "parts" : 45, "Time" : 0.5},
+			 "5-2" : {"manpower" : 0, "ammo" : 600, "rations" : 300, "parts" : 0, "Time" : 2.5},
+			 "5-3" : {"manpower" : 800, "ammo" : 400, "rations" : 400, "parts" : 0, "Time" : 4},
+			 "5-4" : {"manpower" : 100, "ammo" : 0, "rations" : 0, "parts" : 700, "Time" : 7},
+			 "6-1" : {"manpower" : 300, "ammo" : 300, "rations" : 0, "parts" : 100, "Time" : 2},
+			 "6-2" : {"manpower" : 0, "ammo" : 200, "rations" : 550, "parts" : 100, "Time" : 3},
+			 "6-3" : {"manpower" : 0, "ammo" : 0, "rations" : 200, "parts" : 500, "Time" : 5},
+			 "6-4" : {"manpower" : 800, "ammo" : 800, "rations" : 800, "parts" : 0, "Time" : 12},
+			 "7-1" : {"manpower" : 650, "ammo" : 0, "rations" : 650, "parts" : 0, "Time" : 2.5},
+			 "7-2" : {"manpower" : 0, "ammo" : 650, "rations" : 0, "parts" : 300, "Time" : 4},
+			 "7-3" : {"manpower" : 900, "ammo" : 600, "rations" : 600, "parts" : 0, "Time" : 5.5}, 
+			 "7-4" : {"manpower" : 250, "ammo" : 250, "rations" : 250, "parts" : 600, "Time" : 8},
+			 "8-1" : {"manpower" : 150, "ammo" : 150, "rations" : 150, "parts" : 0, "Time" : 1},
+			 "8-2" : {"manpower" : 0, "ammo" : 0, "rations" : 0, "parts" : 450, "Time" : 3},
+			 "8-3" : {"manpower" : 400, "ammo" : 800, "rations" : 400, "parts" : 0, "Time" : 6},
+			 "8-4" : {"manpower" : 1500, "ammo" : 400, "rations" : 400, "parts" : 100, "Time" : 9}}
+
+# Classes 
 class Girls:
 	def __init__(self, girls):
 		self.girls = girls
@@ -76,20 +116,17 @@ class Girls:
 			newLine()
 		else:
 			print("Here's the list of your girls: ")
-			try:
-				for girl in self.girls:
-					print("Name: " + girl)
-					gunType = self.getGunType(girl)
-					currentLevel = self.getCurrentLevel(girl)
-					currentExp = self.getCurrentExp(girl)
-					currentTime = self.getCurrentTime(girl)
-					print("Gun Type: " + gunType)
-					print("Current Level: " + str(currentLevel))
-					print("Exp To Next Level: " + str(self.getExpToNextLevel(girl)))
-					print("Last updated: " + str(currentTime))
-					newLine()
-			except AttributeError:
-				forceUpdate(self.girls)
+			for girl in self.girls:
+				print("Name: " + girl)
+				gunType = self.getGunType(girl)
+				currentLevel = self.getCurrentLevel(girl)
+				currentExp = self.getCurrentExp(girl)
+				currentTime = self.getCurrentTime(girl)
+				print("Gun Type: " + gunType)
+				print("Current Level: " + str(currentLevel))
+				print("Exp To Next Level: " + str(self.getExpToNextLevel(girl)))
+				print("Last updated: " + str(currentTime))
+				newLine()
 
 class Girl:
 	def __init__(self, gunType, level, exp):
@@ -166,15 +203,6 @@ def getExpFromInput():
 	return exp
 
 # Database Functions
-def forceUpdate(girls):
-	# Really bad and hacky function, find a better way to update
-	print("Updating girls...")
-	updatedGirls = {}
-	for girl in girls:
-		print(girl)
-		gunType = getGunTypeFromInput()
-		girls[girl] = Girl(gunType, girls[girl]["Levels"][-1], girls[girl]['Exp'][-1])
-
 def updateGirlsDatabase(f, girls):
 	pickle.dump(girls, open(f, "wb"), pickle.HIGHEST_PROTOCOL)
 	
@@ -182,9 +210,6 @@ def initFile(fileName):
 	filePath = getSaveFilePath(fileName)
 	open(filePath, "w+")
 	updateGirlsDatabase(filePath, Girls())
-
-def openGirlsForWrite():
-	return open(girlsFileLine, "wb")
 
 def readGirlsIn(f):
 	return pickle.load(open(f, "rb"))
@@ -200,7 +225,6 @@ def deleteGirl(girls):
 	if (girlToDelete == "q"): return
 	else:
 		girls.deleteGirl(girlToDelete)
-
 	newLine()
 
 def updateGirl(girls):
@@ -209,33 +233,80 @@ def updateGirl(girls):
 	else:
 		girls.updateGirl(girlToUpdate)
 
+def getResource(mission, resourceType):
+	if resourceType.lower() in {"m", "manpower"}: return mission["manpower"]
+	elif resourceType.lower() in {"a", "ammo"}: return mission["ammo"]
+	elif resourceType.lower() in {"r", "rations"}: return mission["rations"]
+	elif resourceType.lower() in {"p", "parts"}: return mission["parts"]
+	elif resourceType.lower() == "all": return mission["manpower"] + mission["ammo"] + mission["rations"] + mission["parts"]
+
+def logisticHelpScreen():
+	print("m or manpower: Optimize for manpower")
+	print("a or ammo: Optimize for ammo")
+	print("r or rations: Optimize for rations")
+	print("p or parts: Optimize for parts")
+	print("all: Optimize for all resources")
+	print("h or help: Shows this screen")
+	newLine()
+
+possibleResourceTypeChoices = {"m", "a", "r", "p", "manpower", "ammo",
+							   "rations", "parts", "all"}		
+def logisticsScreen():
+	resourceType = None
+	while (True):
+		resourceType = userResponse("Which resource would you like to get? (help for list of commands):")
+		if resourceType in {"h", "help"}: logisticHelpScreen()
+		elif resourceType in possibleResourceTypeChoices: break
+		else: print("You entered an invalid resource type, try again")
+	
+	if (resourceType in {"h", "help"}): 
+		logisticHelpScreen()
+
+	# Currently only prints the first 4
+	allResourcesPerHourMissions = []
+	for missionName in logisticsMissions:
+		mission = logisticsMissions[missionName]
+		timeHours = mission["Time"]
+		allResourcesPerHour = getResource(mission, resourceType) / timeHours
+		allResourcesPerHourMissions.append((missionName, allResourcesPerHour, timeHours))
+
+	itemsToPrint = 4
+	allResourcesPerHourMissions.sort(key = lambda x: x[1], reverse = True)
+	newLine()
+	print("Top " + str(itemsToPrint) + " Missions " + "(" + resourceType + ")")
+	print("-------------------------")
+	for logisticMission in allResourcesPerHourMissions[:itemsToPrint]:
+		print(logisticMission[0] + ": " + str(round(logisticMission[1], 2)) + " (" + str(logisticMission[2]) + " hours)")
+	newLine()
+
 def helpScreen():
-	print("delete: Removes a girl")
-	print("clear: Clears all of your girls. Use with caution")
-	print("add: Adds a new girl to your list")
-	print("update: Updates an existing girl")
-	print("list: Prints out all of the girls that you have")
-	print("exit: Quits the application")
-	print("help: Shows this screen")
+	print("d or delete: Removes a girl")
+	print("c or clear: Clears all of your girls. Use with caution")
+	print("a or add: Adds a new girl to your list")
+	print("u or update: Updates an existing girl")
+	print("ls or list: Prints out all of the girls that you have")
+	print("q or quit: Quits the application")
+	print("h or help: Shows this screen")
+	print("l or logistics: " "Takes you to logistics page")
 	newLine()
 
 def selectionLoop(girls):
-	print("What would you like to do?")
-	selection = userResponse("Options [delete, clear, add, update, list, exit, help]:")
+	selection = userResponse("What would you like to do? (help for list of commands):")
 	newLine()
 
-	if (selection == "exit"):
+	if (selection in {"q", "quit"}):
 		return
-	elif (selection == "delete"):
+	elif (selection in {"d", "delete"}):
 		deleteGirl(girls)
-	elif (selection == "update"):
+	elif (selection in {"u", "update"}):
 		updateGirl(girls)
-	elif (selection == "clear"): 
+	elif (selection in {"c", "clear"}): 
 		yeetGirls(girls)
 		newLine()
-	elif (selection == "list"): girls.listGirls()
-	elif (selection == "add"): girls.addGirlToHaremWithConsent()
-	elif (selection == "help"): helpScreen()
+	elif (selection in {"ls", "list"}): girls.listGirls()
+	elif (selection in {"a", "add"}): girls.addGirlToHaremWithConsent()
+	elif (selection in {"l", "logistics"}): logisticsScreen()
+	elif (selection in {"h", "help"}): helpScreen()
 	else: 
 		print("Do you think I got time to support your girls??")
 		newLine()
@@ -260,7 +331,7 @@ def main():
 	print("Welcome to GFL Level Tracker!")
 	newLine()
 	filePath = getSaveFilePath(fileName)
-	girls = readGirlsIn(filePath) #Girls class
+	girls = readGirlsIn(filePath)
 	girls.listGirls()
 	selectionLoop(girls)
 	updateGirlsDatabase(filePath, girls)
