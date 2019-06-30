@@ -117,23 +117,22 @@ class Girls:
 		else:
 			print("Here's the list of your girls: ")
 			for girl in self.girls:
-				print("Name: " + girl)
-				gunType = self.getGunType(girl)
+				print(girl + " (" + self.getGunType(girl) + ")")
 				currentLevel = self.getCurrentLevel(girl)
 				currentExp = self.getCurrentExp(girl)
 				currentTime = self.getCurrentTime(girl)
-				print("Gun Type: " + gunType)
-				print("Current Level: " + str(currentLevel))
-				print("Exp To Next Level: " + str(self.getExpToNextLevel(girl)))
+				print("Level " + str(currentLevel), end = " ")
+				print("(Exp To Next Level: " + str(self.getExpToNextLevel(girl)) + ")")
 				print("Last updated: " + str(currentTime))
 				newLine()
-
+		
 class Girl:
 	def __init__(self, gunType, level, exp):
 		self.gunType = gunType
 		self.levels = [level]
 		self.exps = [exp]
 		self.times = [datetime.datetime.now()]
+		self.isTracking = False
 
 	def getGunType(self): return self.gunType
 
@@ -145,6 +144,9 @@ class Girl:
 
 	def getCurrentTime(self):
 		return self.times[-1]
+
+	def isTracking(self):
+		return self.isTracking
 
 	def getExpToNextLevel(self):
 		return expToNextLevel[self.getCurrentLevel()] - self.getCurrentExp()
@@ -241,21 +243,31 @@ def getResource(mission, resourceType):
 	elif resourceType.lower() == "all": return mission["manpower"] + mission["ammo"] + mission["rations"] + mission["parts"]
 
 def logisticHelpScreen():
+	print("Logistics Help Page")
+	print("------------------------------------------------------")
 	print("m or manpower: Optimize for manpower")
 	print("a or ammo: Optimize for ammo")
 	print("r or rations: Optimize for rations")
 	print("p or parts: Optimize for parts")
 	print("all: Optimize for all resources")
+	print("q or quit: Goes back to dashboard page")
 	print("h or help: Shows this screen")
-	newLine()
+	print("------------------------------------------------------")
 
 possibleResourceTypeChoices = {"m", "a", "r", "p", "manpower", "ammo",
 							   "rations", "parts", "all"}		
 def logisticsScreen():
+	print("You are on the Logistics Page")
+	print("------------------------------------------------------------------")
 	resourceType = None
 	while (True):
 		resourceType = userResponse("Which resource would you like to get? (help for list of commands):")
-		if resourceType in {"h", "help"}: logisticHelpScreen()
+		if resourceType in {"q", "quit"}: 
+			newLine()
+			return
+		elif resourceType in {"h", "help"}: 
+			newLine()
+			logisticHelpScreen()
 		elif resourceType in possibleResourceTypeChoices: break
 		else: print("You entered an invalid resource type, try again")
 	
@@ -280,6 +292,8 @@ def logisticsScreen():
 	newLine()
 
 def helpScreen():
+	print("Dashboard Help Page")
+	print("------------------------------------------------------")
 	print("d or delete: Removes a girl")
 	print("c or clear: Clears all of your girls. Use with caution")
 	print("a or add: Adds a new girl to your list")
@@ -288,9 +302,12 @@ def helpScreen():
 	print("q or quit: Quits the application")
 	print("h or help: Shows this screen")
 	print("l or logistics: " "Takes you to logistics page")
+	print("------------------------------------------------------")
 	newLine()
 
-def selectionLoop(girls):
+def dashboardPage(girls):
+	print("You are on the Home Page")
+	print("------------------------------------------------------")
 	selection = userResponse("What would you like to do? (help for list of commands):")
 	newLine()
 
@@ -311,7 +328,7 @@ def selectionLoop(girls):
 		print("Do you think I got time to support your girls??")
 		newLine()
 
-	selectionLoop(girls)
+	dashboardPage(girls)
 
 def main():
 	filePath = None
@@ -328,12 +345,13 @@ def main():
 	else:
 		print("Unimplented: Multiple save files")
 
-	print("Welcome to GFL Level Tracker!")
+	print("--------------------------")
+	print("Welcome to GFL Dashboard!")
+	print("---------------------------")
 	newLine()
 	filePath = getSaveFilePath(fileName)
 	girls = readGirlsIn(filePath)
-	girls.listGirls()
-	selectionLoop(girls)
+	dashboardPage(girls)
 	updateGirlsDatabase(filePath, girls)
 	print("Have a nice day!")
 
