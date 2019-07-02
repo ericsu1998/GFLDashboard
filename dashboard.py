@@ -60,12 +60,8 @@ logisticsMissions = {"0-1" : {"manpower" : 0, "ammo" : 145, "rations" : 145, "pa
 
 # Classes 
 class Girls:
-	def __init__(self, girls):
+	def __init__(self, girls={}):
 		self.girls = girls
-	
-	@staticmethod
-	def newGirls():
-		return __init__({})
 
 	def getGunType(self, girl):
 		return self.girls[girl].getGunType()
